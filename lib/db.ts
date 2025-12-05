@@ -15,7 +15,7 @@ export const connectDB = async () => {
     try {
         await mongoose.connect(mongoUrI)
         connected = true
-        console.log("COnnected to DB");
+        console.log("Connected to DB");
         
     } catch (err) {
         console.error("Connection Failed", err);
