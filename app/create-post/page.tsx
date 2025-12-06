@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -11,28 +11,86 @@ import slugify from 'slugify'
 import { useSession } from 'next-auth/react'
 import ThemeToggle from '@/componenets/ThemeToggle'
 import EditorToolbar from '@/componenets/EditorToolbar'
+import Underline from '@tiptap/extension-underline'
+import Strike from '@tiptap/extension-strike'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 
 export default function CreatePostPage() {
   const { data: session } = useSession()
-  const [title, setTitle] = useState('')
-  const [subtitle, setSubtitle] = useState('') // Optional subtitle
   const [message, setMessage] = useState('')
 
+  // We'll extract title/subtitle from editor content later
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Image.configure({ inline: false, allowBase64: true }),
-      Link,
-      Youtube.configure({ controls: false }),
-      Placeholder.configure({ placeholder: 'Start writing your story…' }),
-    ],
-    content: '',
+  StarterKit.configure({
+    heading: { levels: [1, 2, 3] },
+    // StarterKit already includes: bold, italic, bulletList, orderedList, listItem, blockquote, codeBlock, horizontalRule
+  }),
+  Underline,
+  Strike,
+  Image.configure({
+    inline: false,
+    allowBase64: true,
+    HTMLAttributes: {
+      class: 'medium-image',
+    },
+  }),
+  Link,
+  Youtube.configure({ controls: false }),
+  Placeholder.configure({
+    placeholder: ({ node }) => {
+      if (node.type.name === 'heading') return 'Enter your title...'
+      if (node.type.name === 'paragraph') return 'Start writing your story…'
+      return ''
+    },
+  }),
+],
+    content: `
+      <h1>Enter your title...</h1>
+      <p>Write your subtitle here — optional.</p>
+      <p><br></p>
+    `,
     immediatelyRender: false,
   })
 
+  // Extract title & subtitle from editor content
+  const getTitle = () => {
+    const html = editor?.getHTML()
+    if (!html) return ''
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+
+    const h1 = tempDiv.querySelector('h1')
+    return h1?.innerText || ''
+  }
+
+  const getSubtitle = () => {
+    const html = editor?.getHTML()
+    if (!html) return ''
+
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+
+    const pAfterH1 = Array.from(tempDiv.querySelectorAll('p')).find(p => {
+      const prev = p.previousElementSibling
+      return prev && prev.tagName === 'H1'
+    })
+
+    return pAfterH1?.innerText || ''
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!title || !editor) return
+    if (!editor) return
+
+    const title = getTitle()
+    const subtitle = getSubtitle()
+
+    if (!title) {
+      setMessage('Please enter a title')
+      return
+    }
 
     try {
       const content = editor.getHTML()
@@ -41,7 +99,7 @@ export default function CreatePostPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
-          subtitle, // include if you save it
+          subtitle,
           slug: slugify(title, { lower: true, strict: true }),
           content,
           authorId: session?.user.id,
@@ -51,9 +109,11 @@ export default function CreatePostPage() {
       if (!res.ok) throw new Error('Failed to create post')
 
       setMessage('Post created successfully!')
-      setTitle('')
-      setSubtitle('')
-      editor.commands.setContent('')
+      editor.commands.setContent(`
+        <h1>Enter your title...</h1>
+        <p>Write your subtitle here — optional.</p>
+        <p><br></p>
+      `)
     } catch (err: any) {
       setMessage(err.message || 'Something went wrong')
     }
@@ -69,32 +129,12 @@ export default function CreatePostPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
         {message && <p className="text-green-500">{message}</p>}
 
-        {/* Title */}
-        <div
-          contentEditable
-          suppressContentEditableWarning
-          data-placeholder="Post title…"
-          onInput={(e) => setTitle((e.target as HTMLDivElement).innerText)}
-          className="text-4xl font-bold font-serif outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400 empty:before:pointer-events-none"
-        />
-
-        {/* Subtitle (optional) */}
-        <div
-          contentEditable
-          suppressContentEditableWarning
-          data-placeholder="Subtitle …"
-          onInput={(e) => setSubtitle((e.target as HTMLDivElement).innerText)}
-          className="text-xl text-gray-600 font-serif outline-none mt-5 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400 empty:before:pointer-events-none"
-          />
-
-        <hr className="border-gray-200 dark:border-gray-700" />
-          <EditorToolbar editor={editor} />notice how this looks like an input and how images/videos fill the whole content which is un medium like remeber how medium has subtitle's for images 
-
-        {/* Toolbar + Editor */}
-        <div>
+        {/* Editor */}
+        <div className="relative">
+          <EditorToolbar editor={editor} />
           <EditorContent
             editor={editor}
-            className="medium-like-editor prose prose-stone max-w-none dark:prose-invert prose-img:rounded-lg prose-img:my-6 prose-img:mx-auto prose-headings:font-serif prose-p:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:my-6 prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-ul:my-5 prose-ol:my-5"
+            className="medium-editor prose prose-stone max-w-none dark:prose-invert prose-headings:font-serif prose-p:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:my-6 prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-ul:my-5 prose-ol:my-5"
           />
         </div>
 

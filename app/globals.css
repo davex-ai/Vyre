@@ -29,23 +29,53 @@ color: var(--primary);
 
 /* Post Style */
 
-.medium-like-editor {
-  @apply font-serif text-gray-700 dark:text-gray-200;
+.medium-editor {
+  @apply font-serif text-gray-800 dark:text-gray-200;
   line-height: 1.6;
 }
 
-.medium-like-editor h2,
-.medium-like-editor h3 {
-  @apply mt-10 mb-4 font-bold;
+.medium-editor h1 {
+  @apply text-4xl font-bold mt-10 mb-4;
 }
 
-.medium-like-editor p {
-  @apply mb-5;
+.medium-editor h2 {
+  @apply text-2xl font-bold mt-8 mb-4;
 }
 
-.medium-like-editor img,
-.medium-like-editor iframe {
+.medium-editor p {
+  @apply my-5;
+}
+
+.medium-editor img,
+.medium-editor iframe {
   @apply my-6 mx-auto block rounded-lg max-w-full h-auto;
+}
+
+/* Add caption support */
+.medium-editor figure {
+  @apply my-6;
+}
+
+.medium-editor figcaption {
+  @apply text-sm text-gray-500 mt-2 text-center;
+}
+
+/* Optional: remove border from editor */
+.tiptap {
+  @apply outline-none;
+}
+
+/* Make toolbar blend in */
+.editor-toolbar {
+  @apply backdrop-blur bg-white/70 dark:bg-black/70 border-b px-4 py-2 flex gap-2 justify-center;
+}
+
+.medium-editor pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg my-5 overflow-x-auto;
+}
+
+.medium-editor code:not(pre code) {
+  @apply bg-gray-100 dark:bg-gray-800 px-1 rounded;
 }
 hr{
     color: var(--primary);
