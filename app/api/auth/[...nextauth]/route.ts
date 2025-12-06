@@ -1,3 +1,4 @@
+// app/api/auth/[...nextauth]/route.ts
 import { connectDB } from "@/lib/db";
 import User from "@/models/usermodel";
 import bcrypt from "bcryptjs";
@@ -16,15 +17,30 @@ const handler = NextAuth({
             async authorize(credentials) {
                 await connectDB()
 
-                if (!credentials?.email || !credentials.password) return null;
+                console.log("🔥 Credentials received:", credentials)
+
+                if (!credentials?.email || !credentials.password) {
+                    console.log("❌ Missing credentials")
+                    return null
+                }
 
                 const user = await User.findOne({ email: credentials.email })
-                if (!user) return null;
-                const valid = await bcrypt.compare(
-                    credentials.password,
-                    user.password
-                )
-                if (!valid) return null
+                console.log("🔥 User found:", user)
+
+                if (!user) {
+                    console.log("❌ No user with that email")
+                    return null
+                }
+
+                const valid = await bcrypt.compare(credentials.password, user.password)
+                console.log("🔥 Password is valid?", valid)
+
+                if (!valid) {
+                    console.log("❌ Wrong password")
+                    return null
+                }
+
+                console.log("✅ Authorized user:", user.username)
 
                 return {
                     id: user._id.toString(),
@@ -32,6 +48,7 @@ const handler = NextAuth({
                     username: user.username,
                 }
             }
+
         })
     ],
 
@@ -52,8 +69,8 @@ const handler = NextAuth({
         },
         async session({ session, token }) {
             if (token) {
-                session.user.id = token.id;//session.user is possibly undefined
-                session.user.username = token.username;
+                session.user.id = token.id; //session.user is possibly undefined
+                session.user.username = token.username; //session.user is possibly undefined
             }
             return session;
         },

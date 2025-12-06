@@ -4,9 +4,21 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      username: string;
       email: string;
-    };
+      username: string;
+    }
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    username: string;
   }
 }
-// types/next-auth.d.ts
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    username: string;
+  }
+}
