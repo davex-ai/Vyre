@@ -1,47 +1,44 @@
-// app/create-post/page.tsx
-"use client" // must be first
+"use client"
 
-import React, { useState } from "react"
-import { EditorContent, useEditor } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
-import Image from "@tiptap/extension-image"
-import Link from "@tiptap/extension-link"
-import { useSession } from "next-auth/react"
-import slugify from "slugify"
+import React, { useState } from 'react'
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import slugify from 'slugify'
+import { useSession } from 'next-auth/react'
 
 export default function CreatePostPage() {
   const { data: session } = useSession()
-  const [title, setTitle] = useState("")
-  const [message, setMessage] = useState("")
+  const [title, setTitle] = useState('')
+  const [message, setMessage] = useState('')
 
   const editor = useEditor({
     extensions: [StarterKit, Image, Link],
-    content: "",
+    content: '',
   })
+async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault()
+  if (!title || !editor) return
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!title || !editor) return
-
-    const slug = slugify(title, { lower: true })
+  try {
     const content = editor.getHTML()
-    const authorId = session?.user.id
+    const res = await fetch("/api/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, slug: slugify(title, { lower: true }), content, authorId: session?.user.id })
+    })
 
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, slug, content, authorId }),
-      })
-      if (!res.ok) throw new Error("Failed to create post")
+    if (!res.ok) throw new Error("Failed to create post")
 
-      setMessage("Post created successfully!")
-      setTitle("")
-      editor.commands.setContent("")
-    } catch (err: any) {
-      setMessage(err.message || "Something went wrong")
-    }
+    setMessage("Post created successfully!")
+    setTitle("")
+    editor.commands.setContent("")
+  } catch (err: any) {
+    setMessage(err.message || "Something went wrong")
   }
+}
+
 
   return (
     <div className="max-w-3xl mx-auto pt-10">
@@ -65,4 +62,3 @@ export default function CreatePostPage() {
     </div>
   )
 }
-
