@@ -70,13 +70,11 @@ color: var(--primary);
   @apply backdrop-blur bg-white/70 dark:bg-black/70 border-b px-4 py-2 flex gap-2 justify-center;
 }
 
-.medium-editor pre {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg my-5 overflow-x-auto;
-}
-
-.medium-editor code:not(pre code) {
-  @apply bg-gray-100 dark:bg-gray-800 px-1 rounded;
-}
 hr{
     color: var(--primary);
+}
+
+/* In your global.css or layout */
+.canvas-bg {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }

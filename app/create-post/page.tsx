@@ -134,7 +134,8 @@ export default function CreatePostPage() {
           <EditorToolbar editor={editor} />
           <EditorContent
             editor={editor}
-            className="medium-editor prose prose-stone max-w-none dark:prose-invert prose-headings:font-serif prose-p:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:my-6 prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-ul:my-5 prose-ol:my-5"
+            className="medium-editor prose max-w-none dark:prose-invert"
+            //  prose-headings:font-serif prose-p:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:my-6 prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-ul:my-5 prose-ol:my-5"
           />
         </div>
 
