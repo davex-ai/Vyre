@@ -8,9 +8,11 @@ export interface PostInput {
     authorId?: string;
 }
 
-export async function getAllPosts() {
+export async function getAllPosts(limit?: number) {
     await connectDB()
-    return Post.find().sort({createdAt: -1})
+    const query = Post.find().sort({createdAt: -1})
+    if(limit) query.limit(limit)
+    return query
 }
 export async function getPostBySlug(slug: string) {
     await connectDB()
