@@ -1,80 +1,65 @@
-// app/api/auth/[...nextauth]/route.ts
-import { connectDB } from "@/lib/db";
-import User from "@/models/usermodel";
-import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { userAgent } from "next/server";
+import { connectDB } from "@/lib/db"
+import User from "@/models/usermodel"
+import bcrypt from "bcryptjs"
+import NextAuth, { type AuthOptions } from "next-auth"
+import Credentials from "next-auth/providers/credentials"
 
-const handler = NextAuth({
-    providers: [
-        Credentials({
-            name: "credentials",
-            credentials: {
-                email: {},
-                password: {},
-            },
-            async authorize(credentials) {
-                await connectDB()
+export const authOptions: AuthOptions = {
+  providers: [
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: {},
+        password: {},
+      },
+      async authorize(credentials) {
+        await connectDB()
 
-                console.log("🔥 Credentials received:", credentials)
+        if (!credentials?.email || !credentials.password) return null
 
-                if (!credentials?.email || !credentials.password) {
-                    console.log("❌ Missing credentials")
-                    return null
-                }
+        const user = await User.findOne({ email: credentials.email })
+        if (!user) return null
 
-                const user = await User.findOne({ email: credentials.email })
-                console.log("🔥 User found:", user)
+        const valid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        )
+        if (!valid) return null
 
-                if (!user) {
-                    console.log("❌ No user with that email")
-                    return null
-                }
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          username: user.username,
+        }
+      },
+    }),
+  ],
 
-                const valid = await bcrypt.compare(credentials.password, user.password)
-                console.log("🔥 Password is valid?", valid)
+  pages: {
+    signIn: "/login",
+  },
 
-                if (!valid) {
-                    console.log("❌ Wrong password")
-                    return null
-                }
+  session: {
+    strategy: "jwt",
+  },
 
-                console.log("✅ Authorized user:", user.username)
-
-                return {
-                    id: user._id.toString(),
-                    email: user.email,
-                    username: user.username,
-                }
-            }
-
-        })
-    ],
-
-    pages: {
-        signIn: '/login'
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.username = user.username
+      }
+      return token
     },
-    session: {
-        strategy: "jwt",
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.username = token.username as string
+      }
+      return session
     },
+  },
+}
 
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.username = user.username; //username doesnt exist on type User  
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            if (token) {
-                session.user.id = token.id; //session.user is possibly undefined
-                session.user.username = token.username; //session.user is possibly undefined
-            }
-            return session;
-        },
-    }
-})
-
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
