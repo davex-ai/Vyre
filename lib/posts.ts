@@ -16,11 +16,18 @@ export interface SerializedPost {
 
 function serializePost(post: any): SerializedPost | null {
   if (!post) return null;
+   let processedContent = post.content;
+  if (typeof post.content === 'string') {
+    processedContent = post.content.replace(
+      /<img([^>]*?)>/g,
+      '<img$1 class="mx-auto my-6 max-w-full rounded-lg shadow-md" />'
+    );
+  }
   return {
     _id: post._id.toString(),
     title: post.title,
     slug: post.slug,
-    content: post.content,
+    content: processedContent,
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt?.toISOString(),
     authorId: post.authorId
@@ -62,4 +69,4 @@ export async function deletePost(id: string) {
   await connectDB();
   return await Post.findOneAndDelete({ _id: id });
 }
-export type { SerializedPost };
+export type { SerializedPost };//export declaration conflicts with exported declaration of Serialized post
