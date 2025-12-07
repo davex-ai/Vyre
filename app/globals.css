@@ -81,3 +81,13 @@ hr{
 
 /* READER VIEW */
 
+/* Ensure all images inside posts are responsive and centered */
+article img {
+  @apply mx-auto my-6 max-w-full rounded-lg shadow-md;
+}
+
+/* Optional: make sure they don't overflow */
+article img {
+  height: auto;
+  max-width: 100%;
+}

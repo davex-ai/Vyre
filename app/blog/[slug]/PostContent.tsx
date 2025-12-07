@@ -1,93 +1,91 @@
-// app/blog/[slug]/PostContent.tsx
-"use client";
-
-import { motion, useScroll, useTransform } from "framer-motion";
+// app/blog/[slug]/page.tsx
+import { getPostBySlug, getAllPosts } from "@/lib/posts";
+import Container from "@/componenets/Container";
+import ThemeToggle from "@/componenets/ThemeToggle";
 import Link from "next/link";
- 
-interface PostContentProps {
-  post: any;
-  authorName: string;
-  formattedDate: string;
-  prevPost: any | null;
-  nextPost: any | null;
+import { notFound } from "next/navigation";
+import PostContent from "./PostContent"; // ✅ Client Component
+
+interface PostPageProps {
+  params: Promise<{ slug: string }>;
 }
 
-export default function PostContent({
-  post,
-  authorName,
-  formattedDate,
-  prevPost,
-  nextPost,
-}: PostContentProps) {
+export default async function PostPage({ params }: PostPageProps) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+
+  if (!post) return notFound();
+
+  const formattedDate = new Date(post.createdAt).toLocaleDateString();
+  const authorName = post.authorId?.username || "Anonymous";
+
+  const posts = await getAllPosts();
+  const currentIndex = posts.findIndex((p) => p.slug === slug);//p is possibly null
+  const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
+
   return (
-    <>
-      {/* Post Title + Meta */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-12"
-      >
-        <h1 className="text-5xl font-extrabold leading-snug mb-4">{post.title}</h1>
-        {post.subtitle && (
-          <h2 className="text-xl text-neutral-600 dark:text-neutral-400 mb-4">
-            {post.subtitle}
-          </h2>
-        )}
-        <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
-          <span>By {authorName}</span>
-          <span>{formattedDate}</span>
-        </div>
-      </motion.div>
+    <Container className="max-w-3xl mx-auto py-12 px-6 relative z-10">
+      <div className="flex justify-between items-center mb-12">
+        <Link href="/blog" className="text-sm underline text-primary hover:opacity-80">
+          ← Back to all posts
+        </Link>
+        <ThemeToggle />
+      </div>
 
-      {/* Reading Content */}
-    <motion.article
-  className="prose max-w-none dark:prose-invert prose-headings:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:pl-6 prose-blockquote:border-l-4 prose-blockquote:border-neutral-300 dark:prose-blockquote:border-neutral-700"
-  dangerouslySetInnerHTML={{ __html: post.content }}
-/>
-      {/* Pagination */}
-      <motion.div
-        className="flex justify-between mt-16 mb-12"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        {prevPost ? (
-          <Link
-            href={`/blog/${prevPost.slug}`}
-            className="underline text-primary hover:opacity-80"
-          >
-            ← {prevPost.title.slice(0, 30)}…
-          </Link>
-        ) : (
-          <div />
-        )}
-
-        {nextPost ? (
-          <Link
-            href={`/blog/${nextPost.slug}`}
-            className="underline text-primary hover:opacity-80"
-          >
-            {nextPost.title.slice(0, 30)}… →
-          </Link>
-        ) : (
-          <div />
-        )}
-      </motion.div>
-
-      <ScrollProgressBar />
-    </>
+      {/* ✅ All animations now in client component */}
+      <PostContent
+        post={post}
+        authorName={authorName}
+        formattedDate={formattedDate}
+        prevPost={prevPost}
+        nextPost={nextPost}
+      />
+    </Container>
   );
+}// app/blog/[slug]/page.tsx
+import { getPostBySlug, getAllPosts } from "@/lib/posts";
+import Container from "@/componenets/Container";
+import ThemeToggle from "@/componenets/ThemeToggle";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import PostContent from "./PostContent"; // ✅ Client Component
+
+interface PostPageProps {
+  params: Promise<{ slug: string }>;
 }
 
-function ScrollProgressBar() {
-  const { scrollYProgress } = useScroll();
-  const width = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+export default async function PostPage({ params }: PostPageProps) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+
+  if (!post) return notFound();
+
+  const formattedDate = new Date(post.createdAt).toLocaleDateString();
+  const authorName = post.authorId?.username || "Anonymous";
+
+  const posts = await getAllPosts();
+  const currentIndex = posts.findIndex((p) => p.slug === slug);//p is possibly null
+  const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
   return (
-    <motion.div
-      style={{ width }}
-      className="h-1 bg-primary fixed bottom-0 left-0 z-50"
-    />
+    <Container className="max-w-3xl mx-auto py-12 px-6 relative z-10">
+      <div className="flex justify-between items-center mb-12">
+        <Link href="/blog" className="text-sm underline text-primary hover:opacity-80">
+          ← Back to all posts
+        </Link>
+        <ThemeToggle />
+      </div>
+
+      {/* ✅ All animations now in client component */}
+      <PostContent
+        post={post}
+        authorName={authorName}
+        formattedDate={formattedDate}
+        prevPost={prevPost}
+        nextPost={nextPost}
+      />
+    </Container>
   );
 }
