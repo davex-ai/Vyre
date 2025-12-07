@@ -19,6 +19,8 @@ export default function CreatePostPage() {
   const { data: session } = useSession()
   const [message, setMessage] = useState('')
 
+  
+
   // We'll extract title/subtitle from editor content later
   const editor = useEditor({
     extensions: [
@@ -46,10 +48,10 @@ export default function CreatePostPage() {
   }),
 ],
     content: `
-      <h1>Enter your title...</h1>
+      <h1>Enter your title...</h1> 
       <p>Write your subtitle here — optional.</p>
       <p><br></p>
-    `,
+    `, 
     immediatelyRender: false,
   })
 

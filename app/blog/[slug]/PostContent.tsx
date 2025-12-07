@@ -42,12 +42,10 @@ export default function PostContent({
       </motion.div>
 
       {/* Reading Content */}
-     <motion.article
+    <motion.article
   className="prose max-w-none dark:prose-invert prose-headings:font-serif prose-p:leading-relaxed prose-p:my-5 prose-blockquote:pl-6 prose-blockquote:border-l-4 prose-blockquote:border-neutral-300 dark:prose-blockquote:border-neutral-700"
->
-  <div dangerouslySetInnerHTML={{ __html: post.content }} />
-</motion.article>
-
+  dangerouslySetInnerHTML={{ __html: post.content }}
+/>
       {/* Pagination */}
       <motion.div
         className="flex justify-between mt-16 mb-12"

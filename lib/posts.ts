@@ -2,6 +2,7 @@
 
 import Post from "@/models/postmodel";
 import { connectDB } from "./db";
+import sanitizeHtml from "sanitize-html"; 
 
 // Define a proper non-null post type
 export interface SerializedPost {
@@ -61,7 +62,27 @@ export async function getAuthor(authorId: string) {
 
 export async function createPost(data: SerializedPost) {
   await connectDB();
-  const post = await Post.create(data);
+
+  const sanitizedContent = sanitizeHtml(data.content, {
+    allowedTags: [
+        'h1', 'h2', 'h3', 'p', 'br', 'img', 'a', 'ul', 'ol', 'li', 'blockquote',
+      'strong', 'em', 'u', 's', 'hr', 'iframe', 'div', 'span', 'code', 'pre'
+    ],
+    allowedAttributes: {
+      a: ['href', 'target', 'rel'],
+      img: ['src', 'alt', 'width', 'height', 'class'],
+      iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
+      div: ['class'],
+      span: ['class'],
+      p: ['class'],
+      h1: ['class'],
+      h2: ['class'],
+      h3: ['class'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+    allowVulnerableTags: false,
+  })
+  const post = await Post.create({...data, content: sanitizedContent});
   return post.toObject(); // optional, but consistent
 }
 
@@ -69,4 +90,6 @@ export async function deletePost(id: string) {
   await connectDB();
   return await Post.findOneAndDelete({ _id: id });
 }
-export type { SerializedPost };//export declaration conflicts with exported declaration of Serialized post
+
+
+ 
