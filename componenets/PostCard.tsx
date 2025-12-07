@@ -19,7 +19,7 @@ export default function PostCard({ post }: { post: any }) {
     <motion.article
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ x: 6 }}
+      whileHover={{ x: 40 }}
       transition={{ duration: 0.35 }}
       className="relative border-l border-neutral-300/40 dark:border-neutral-700/40 pl-6 py-6 group"
     >

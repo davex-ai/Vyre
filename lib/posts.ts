@@ -9,8 +9,7 @@ export interface PostInput {
   authorId?: string;
 }
 
-// Helper to convert Mongoose _id to string
-function serializePost(post: any) {
+ function serializePost(post: any) {
   if (!post) return null;
   return {
     _id: post._id.toString(),
