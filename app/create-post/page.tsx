@@ -111,7 +111,7 @@ const content = tempDiv.innerHTML
           subtitle,
           slug: slugify(title, { lower: true, strict: true }),
           content,
-          authorId: session?.user.id,
+          authorId: session?.user?.id,
         }),
       })
 

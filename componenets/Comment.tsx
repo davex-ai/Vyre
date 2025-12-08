@@ -44,7 +44,7 @@ export default function Comments({ postId }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!content.trim() || !session?.user.id) return;'session.user is possibly undefned'
+    if (!content.trim() || !session?.user?.id) return; 
 
     setLoading(true);
 
