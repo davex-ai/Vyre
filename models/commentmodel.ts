@@ -6,5 +6,5 @@ const commentSchema = new mongoose.Schema({
     content: {type: String}
 }, {timestamps: true})
 
-const Comment = mongoose.models.Comment || mongoose.model("Post", commentSchema)
+const Comment = mongoose.models.Comment || mongoose.model("Comment", commentSchema)
 export default Comment

@@ -41,7 +41,7 @@ export default async function Page() {
 
         {!session && (
           <Link
-            href="/blog"
+            href="/register"
             className="inline-block mt-6 underline text-primary"
           >
             Read all posts →

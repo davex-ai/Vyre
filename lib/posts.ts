@@ -22,6 +22,7 @@ function serializePost(post: any): SerializedPost | null {
     title: post.title,
     slug: post.slug,
     content: post.content,
+    subtitle: post.subtitle,
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt?.toISOString(),
     authorId: post.authorId
