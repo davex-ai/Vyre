@@ -154,7 +154,13 @@ const toggleLike = async () => {
         <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 mb-6">
           <div>
             <span>
-              By <span className="font-medium">{authorName}</span>
+By{" "}
+<Link
+  href={`/user/${post.authorId?.username}`}
+  className="font-medium hover:underline"
+>
+  {authorName}
+</Link>
             </span>
             <span className="mx-2">•</span>
             <span>{formattedDate}</span>

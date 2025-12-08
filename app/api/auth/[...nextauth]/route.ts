@@ -53,7 +53,6 @@ export const authOptions: AuthOptions = {
     token.username = user.username
   }
 
-  // Validate user exists on every request
   if (token.id) {
     await connectDB()
     const dbUser = await User.findById(token.id)

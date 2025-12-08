@@ -26,7 +26,7 @@ export default async function Page() {
           <ThemeToggle />
         </div>
 
-        <p className="text-lg opacity-80 mb-10">Stop Playing</p>
+        <p className="text-lg opacity-80 mb-10">What Are You Thinking About Today?</p>
 
         {/* ✅ Posts preview */}
         <div className="space-y-4">
@@ -35,7 +35,7 @@ export default async function Page() {
           )}
 
           {posts.map((post) => (
-            <PostCard key={post._id.toString()} post={post} />//post is possibly null
+            <PostCard key={post._id.toString()} post={post} />
           ))}
         </div>
 

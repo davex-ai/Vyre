@@ -55,10 +55,18 @@ export async function getPostBySlug(slug: string) {
   return serializePost(post);
 }
 
-export async function getAuthor(authorId: string) {
-  await connectDB();
-  return await Post.find({ _id: authorId }).lean();
+export async function getPostsByAuthor(userId: string) {
+  await connectDB()
+  const posts = await Post.find({ authorId: userId })
+    .sort({ createdAt: -1 })
+    .populate("authorId", "username")
+    .lean()
+
+  return posts
+    .map(serializePost)
+    .filter((p): p is SerializedPost => p !== null)
 }
+
 
 export async function createPost(data: SerializedPost) {
   await connectDB();

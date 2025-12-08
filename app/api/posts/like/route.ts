@@ -25,7 +25,6 @@ export async function POST(req: Request) {
 
   const userId = session.user.id;
 
-  // ✅ SAFE: Ensure likes is an array (handle undefined or missing field)
   const likesArray = Array.isArray(post.likes) ? post.likes : [];
 
   const alreadyLiked = likesArray.includes(userId);
