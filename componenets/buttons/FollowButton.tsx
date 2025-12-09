@@ -12,7 +12,7 @@ export default function FollowButton({ targetUserId }: { targetUserId: string })
 
   useEffect(() => {
     const fetchFollowing = async () => {
-      const res = await fetch(`/api/users/${targetUserId}/follow`);
+      const res = await fetch(`/api/user/${targetUserId}/follow`);
       if (!res.ok) return; // guest → isFollowing = null
       const data = await res.json();
       setIsFollowing(data.isFollowing);
@@ -23,7 +23,7 @@ export default function FollowButton({ targetUserId }: { targetUserId: string })
   const toggleFollow = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/users/${targetUserId}/follow`, {
+      const res = await fetch(`/api/user/${targetUserId}/follow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
