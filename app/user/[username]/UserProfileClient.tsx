@@ -16,6 +16,7 @@ interface UserProfileClientProps {
     avatar?: string;
     followers?: any[];
     following?: any[];
+    isLoggedIn: true
   };
   posts: SerializedPost[];
   isMe: boolean;
@@ -30,8 +31,7 @@ export default function UserProfileClient({
 
   return (
     <motion.div initial="initial"  animate="animate" variants={{ initial: {}, animate: { transition: { staggerChildren: 0.08, delayChildren: 0.1,}, }, }} className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8 mb-12" >
-      {/* Avatar */}
-      <motion.div variants={{
+       <motion.div variants={{
           initial: { scale: 0.8, opacity: 0, y: 20 },
           animate: { scale: 1, opacity: 1, y: 0 },
         }}
@@ -62,8 +62,7 @@ export default function UserProfileClient({
         )}
       </motion.div>
 
-      {/* User Info */}
-      <motion.div
+       <motion.div
         variants={{
           initial: { opacity: 0, y: 20 },
           animate: { opacity: 1, y: 0 },
@@ -122,7 +121,7 @@ export default function UserProfileClient({
             animate: { opacity: 1, y: 0 },
           }}
           transition={{ delay: 0.2 }}
-  className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-6" // 👈 slightly darker
+  className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-6" 
         >
            <span>
     <strong className="text-gray-900 dark:text-white">
@@ -153,8 +152,11 @@ export default function UserProfileClient({
             transition={{ delay: 0.25, type: "spring", stiffness: 400 }}
             className="mt-2"
           >
-            <FollowButton targetUserId={user._id} />
-          </motion.div>
+{
+  session && !isMe && ( //cannot find name 'session' did u xrsession
+    <FollowButton targetUserId={user._id} />
+  )
+}          </motion.div>
         )}
       </motion.div>
     </motion.div>

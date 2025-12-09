@@ -37,12 +37,11 @@ function serializePost(post: any): SerializedPost | null {
         likes: Array.isArray(post.likes) ? post.likes.length : 0,
     }
 }
-
-// lib/posts.ts → getAllPosts & getPostsByAuthor
+ 
 export async function getAllPosts(limit?: number) {
   await connectDB();
   let query = Post.find()
-    .populate("authorId", "username isDeleted") // 👈 include isDeleted
+    .populate("authorId", "username isDeleted") 
     .sort({ createdAt: -1 });
   if (limit) query = query.limit(limit);
   const posts = await query.lean();

@@ -1,12 +1,16 @@
-// Supports:
-// GET  → check if current user follows target
-// POST → toggle follow
 // app/api/users/[id]/follow/route.ts
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import User from "@/models/usermodel";
+
+// Helper: send JSON error
+function jsonError(message: string, status = 401) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 export async function GET(
   request: Request,
@@ -14,13 +18,12 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return Response.json({ isFollowing: false });
+    return Response.json({ isFollowing: false }); // ✅ safe for guests
   }
 
   await connectDB();
   const user = await User.findById(params.id).select("followers");
   const isFollowing = user?.followers?.includes(session.user.id) || false;
-
   return Response.json({ isFollowing });
 }
 
@@ -30,7 +33,8 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return new Response("Unauthorized", { status: 401 });
+    // ✅ Return JSON error — do NOT redirect
+    return jsonError("Authentication required", 401);
   }
 
   await connectDB();
@@ -38,28 +42,17 @@ export async function POST(
   const targetUserId = params.id;
 
   const targetUser = await User.findById(targetUserId);
-  if (!targetUser) return new Response("User not found", { status: 404 });
+  if (!targetUser) return jsonError("User not found", 404);
 
-  // Check if already following
   const isCurrentlyFollowing = targetUser.followers.includes(currentUserId);
 
   if (isCurrentlyFollowing) {
-    // Unfollow
-    await User.findByIdAndUpdate(targetUserId, {
-      $pull: { followers: currentUserId },
-    });
-    await User.findByIdAndUpdate(currentUserId, {
-      $pull: { following: targetUserId },
-    });
+    await User.findByIdAndUpdate(targetUserId, { $pull: { followers: currentUserId } });
+    await User.findByIdAndUpdate(currentUserId, { $pull: { following: targetUserId } });
     return Response.json({ isFollowing: false });
   } else {
-    // Follow
-    await User.findByIdAndUpdate(targetUserId, {
-      $addToSet: { followers: currentUserId },
-    });
-    await User.findByIdAndUpdate(currentUserId, {
-      $addToSet: { following: targetUserId },
-    });
+    await User.findByIdAndUpdate(targetUserId, { $addToSet: { followers: currentUserId } });
+    await User.findByIdAndUpdate(currentUserId, { $addToSet: { following: targetUserId } });
     return Response.json({ isFollowing: true });
   }
 }

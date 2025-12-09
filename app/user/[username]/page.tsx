@@ -19,6 +19,7 @@ export default async function UserProfile({
   const { username } = await params;
   const session = await getServerSession(authOptions);
   const user = await getUserByUsername(username);
+  const isLoggedIn = !!session?.user
 
   if (!user) notFound();
 
@@ -28,21 +29,17 @@ export default async function UserProfile({
 
   return (
     <Container className="max-w-4xl mx-auto py-8 md:py-12 px-4">
-      {/* 👇 BACK BUTTON (CLIENT COMPONENT) */}
       <div className="mb-6">
         <BackButton />
       </div>
 
-      {/* 👇 THEME TOGGLE */}
       <div className="absolute top-4 right-4 z-10 g flex gap-4">
         <ThemeToggle />
         <Profile/>
       </div>
 
-      {/* 👇 PROFILE CONTENT */}
-      <UserProfileClient user={user} posts={posts} isMe={isMe} />
+      <UserProfileClient user={user} posts={posts} isMe={isMe} isLoggedIn={isLoggedIn} />//type doesnt exist on type 'intrinsicAttributes & UserProfileClientProps'
 
-      {/* 👇 POSTS SECTION */}
       <div className="border-t border-neutral-200/50 dark:border-neutral-800/50 pt-8">
         <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">
           Posts by {user.username}
