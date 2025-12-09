@@ -9,6 +9,8 @@ const UserSchema = new mongoose.Schema(
     bio: { type: String, default: "" },
     avatar: { type: String, default: "" },
     isDeleted: { type: Boolean, default: false }, 
+    followers: { type: [mongoose.Schema.Types.ObjectId], default: [], ref: "User" },
+    following: { type: [mongoose.Schema.Types.ObjectId], default: [], ref: "User" },
     },
   { timestamps: true }
 );
