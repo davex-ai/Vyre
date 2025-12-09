@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import FollowButton from "@/componenets/buttons/FollowButton"; 
 import type { SerializedPost } from "@/lib/posts";
 import { FaPencilAlt } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditProfile from "@/componenets/EditProfile";
 
 interface UserProfileClientProps {
@@ -31,6 +31,27 @@ export default function UserProfileClient({
   isLoggedIn
 }: UserProfileClientProps) {
       const [isModalOpen, setIsModalOpen] = useState(false);
+      
+        const [localFollowersCount, setLocalFollowersCount] = useState(user.followers?.length ?? 0);
+  const [localIsFollowing, setLocalIsFollowing] = useState(false);
+
+  useEffect(() => {
+    if (!isMe && isLoggedIn) {
+      const check = async () => {
+        const res = await fetch(`/api/user/${user._id}/follow`);
+        if (res.ok) {
+          const { isFollowing } = await res.json();
+          setLocalIsFollowing(isFollowing);
+        }
+      };
+      check();
+    }
+  }, [user._id, isMe, isLoggedIn]);
+
+  const handleFollowToggle = (isNowFollowing: boolean) => {
+    setLocalIsFollowing(isNowFollowing);
+    setLocalFollowersCount(prev => isNowFollowing ? prev + 1 : prev - 1);
+  };
 
   return (
     <motion.div initial="initial"  animate="animate" variants={{ initial: {}, animate: { transition: { staggerChildren: 0.08, delayChildren: 0.1,}, }, }} className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8 mb-12" >
@@ -128,7 +149,7 @@ export default function UserProfileClient({
         >
            <span>
     <strong className="text-gray-900 dark:text-white">
-      {user.followers?.length ?? 0}
+      {localFollowersCount}
     </strong>{" "}
     followers
   </span>
@@ -156,7 +177,7 @@ export default function UserProfileClient({
             className="mt-2"
           >
  {!isMe && isLoggedIn && (
-  <FollowButton targetUserId={user._id} />
+  <FollowButton targetUserId={user._id} onToggle={handleFollowToggle }/>//bug
 )}         </motion.div>
         )}
       </motion.div>
