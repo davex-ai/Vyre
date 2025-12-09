@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaUserPlus, FaCheck } from "react-icons/fa";
 
-export default function FollowButton({ targetUserId }: { targetUserId: string }) {
+export default function FollowButton({ targetUserId, onToggle }: { targetUserId: string, onToggle?: (isNowFollowing: boolean) => void }) {
   const [loading, setLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
   const router = useRouter();
@@ -52,6 +52,7 @@ export default function FollowButton({ targetUserId }: { targetUserId: string })
       }
 
       setIsFollowing(data.isFollowing);
+      onToggle?.(data.isFollowing);//this exprssion isnt callable
     } catch (err) {
       console.error("Follow failed:", err);
       alert("Something went wrong. Please try again.");
