@@ -2,16 +2,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FaUserPlus, FaCheck } from "react-icons/fa";
 
 export default function FollowButton({ targetUserId }: { targetUserId: string }) {
   const [loading, setLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const router = useRouter();
 
-  // Optional: Fetch initial follow state on mount
   useEffect(() => {
     const fetchFollowing = async () => {
       const res = await fetch(`/api/users/${targetUserId}/follow`);
+      if (!res.ok) return; // guest → isFollowing = null
       const data = await res.json();
       setIsFollowing(data.isFollowing);
     };
@@ -25,14 +27,32 @@ export default function FollowButton({ targetUserId }: { targetUserId: string })
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        throw new Error("Invalid response");
+      }
+
       const data = await res.json();
+
+      if (res.status === 401 && data.error === "Authentication required") {
+        // ✅ Redirect to login
+        router.push("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to follow");
+      }
+
       setIsFollowing(data.isFollowing);
     } catch (err) {
-      console.error("Follow failed", err);
+      console.error("Follow failed:", err);
+      alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }; 
 
   return (
     <button
@@ -52,7 +72,7 @@ export default function FollowButton({ targetUserId }: { targetUserId: string })
       ) : (
         <>
           <FaUserPlus size={12} />
-            Follow
+          Follow
         </>
       )}
     </button>
