@@ -15,7 +15,6 @@ interface UserProfileClientProps {
         avatar?: string;
         followers?: any[];
         following?: any[];
-        isLoggedIn: boolean
     };
     posts: SerializedPost[];
     isMe: boolean;
